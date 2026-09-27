@@ -4,16 +4,16 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <title>설이의 타로</title>
-  <meta name="description" content="친구의 타로 운세를 확인하고 카드를 뽑아보라냥!" />
+  <meta name="description" content="고양이 설이가 알려주는 오늘의 타로 운세" />
   <meta property="og:type" content="website" />
   <meta property="og:locale" content="ko_KR" />
   <meta property="og:site_name" content="설이의 타로" />
-  <meta property="og:title" content="설이가 알려주는 오늘의 운세는?" />
-  <meta property="og:description" content="친구의 타로 운세를 확인하고 카드를 뽑아보라냥!" />
+  <meta property="og:title" content="설이의 타로" />
+  <meta property="og:description" content="고양이 설이가 알려주는 오늘의 타로 운세" />
   <meta property="og:image" content="https://hyeonju0-0.github.io/Jiseols_Tarot/assets/logo_cat.png" />
   <meta name="twitter:card" content="summary" />
-  <meta name="twitter:title" content="설이가 알려주는 오늘의 운세는?" />
-  <meta name="twitter:description" content="친구의 타로 운세를 확인하고 카드를 뽑아보라냥!" />
+  <meta name="twitter:title" content="설이의 타로" />
+  <meta name="twitter:description" content="고양이 설이가 알려주는 오늘의 타로 운세" />
   <link rel="preconnect" href="https://cdn.jsdelivr.net" />
   <link href="https://cdn.jsdelivr.net/npm/galmuri@latest/dist/galmuri.css" rel="stylesheet" />
   <style>
@@ -828,6 +828,12 @@
       filter: brightness(1.05);
     }
 
+    .result-btn:disabled {
+      cursor: wait;
+      filter: none;
+      opacity: 0.75;
+    }
+
     .toast {
       position: fixed;
       left: 50%;
@@ -1314,6 +1320,7 @@
   </style>
   <script src="tarot-meanings.js"></script>
   <script src="fortune-messages.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/html-to-image@1.11.13/dist/html-to-image.js"></script>
 </head>
 <body>
   <header class="site-header">
@@ -1452,8 +1459,7 @@
         <p class="result-description" id="result-description"></p>
         <p class="result-cat" id="result-cat"></p>
         <div class="result-actions">
-          <button class="result-btn primary" id="result-share" type="button">결과 공유</button>
-          <button class="result-btn primary" id="result-draw-too" type="button" hidden>나도 뽑기</button>
+          <button class="result-btn primary" id="result-save" type="button">사진 저장</button>
           <button class="result-btn" id="result-home" type="button">홈으로</button>
         </div>
       </div>
@@ -1506,9 +1512,8 @@
               오늘 뽑은 카드는 「타로 기록」에서 다시 확인할 수 있어요.
             </p>
             <p>
-              <strong>04. 친구와 함께 나눠요</strong>
-              오늘의 타로 결과를 링크로 공유할 수도 있어요.
-              공유한 결과는 <strong>오늘 하루 동안</strong> 확인할 수 있습니다.
+              <strong>04. 결과를 사진으로 남겨요</strong>
+              오늘의 타로 결과는 사진으로 저장해서 간직할 수 있어요.
             </p>
           </div>
 
@@ -1585,7 +1590,6 @@
       { id: 19, file: "19.TheSun.png", name: "The Sun", ko: "태양" },
       { id: 21, file: "21.TheWorld.png", name: "The World", ko: "세계" },
     ];
-
 
     const FORTUNE_LABELS = [
       { key: "overall", label: "종합운" },
@@ -1685,8 +1689,7 @@
     const resultFortunes = $("result-fortunes");
     const resultDescription = $("result-description");
     const resultCat = $("result-cat");
-    const resultShare = $("result-share");
-    const resultDrawToo = $("result-draw-too");
+    const resultSave = $("result-save");
     const resultHome = $("result-home");
     const toastEl = $("toast");
     const aboutModal = $("about-modal");
@@ -1718,43 +1721,6 @@
       if (date != null && !/^\d{8}$/.test(date)) return false;
       if (orientation !== "upright" && orientation !== "reversed") return false;
       return Boolean(findCard(cardId));
-    }
-
-    function encodeShareToken(cardId, orientation, date) {
-      return cardId + "." + (orientation === "reversed" ? "r" : "u") + "." + date;
-    }
-
-    function parseShareToken(token) {
-      if (!token) return null;
-      const parts = String(token).split(".");
-      if (parts.length !== 3) return null;
-      const cardId = Number(parts[0]);
-      const orientation = parts[1] === "r" ? "reversed" : parts[1] === "u" ? "upright" : null;
-      if (!orientation || !isValidDraw(cardId, orientation, parts[2])) return null;
-      return { cardId, orientation, date: parts[2] };
-    }
-
-    function readShareFromUrl() {
-      return parseShareToken(new URLSearchParams(location.search).get("s"));
-    }
-
-    function shareUrlFor(cardId, orientation, date) {
-      const url = new URL(location.href);
-      url.search = "";
-      url.hash = "";
-      url.searchParams.set("s", encodeShareToken(cardId, orientation, date));
-      return url.toString();
-    }
-
-    function replaceShareUrl(cardId, orientation, date) {
-      history.replaceState(null, "", shareUrlFor(cardId, orientation, date));
-    }
-
-    function clearShareUrl() {
-      const url = new URL(location.href);
-      url.searchParams.delete("s");
-      const search = url.searchParams.toString();
-      history.replaceState(null, "", url.pathname + (search ? "?" + search : "") + url.hash);
     }
 
     function readJson(key, fallback) {
@@ -1833,16 +1799,6 @@
       homeSpeech.textContent = saved ? "오늘은 이미 운세를 봤다냥!" : "오늘의 운세를 뽑아볼까냥?";
     }
 
-    function syncResultActions(result) {
-      const isOwn = Boolean(result && result.isOwn);
-      const fromRecord = Boolean(result && result.fromRecord);
-      const isToday = Boolean(result && result.date === todayStamp());
-      resultShare.hidden = !isOwn || !isToday;
-      resultHome.hidden = !isOwn;
-      resultDrawToo.hidden = isOwn;
-      resultHome.textContent = fromRecord ? "기록으로" : "홈으로";
-    }
-
     function isOpen(el) {
       return el.classList.contains("is-open");
     }
@@ -1917,7 +1873,6 @@
       resultView.classList.remove("is-open", "is-ready");
       resultView.setAttribute("aria-hidden", "true");
       currentResult = null;
-      clearShareUrl();
       syncHomeDrawState();
       if (fromRecord) {
         openRecord();
@@ -1930,18 +1885,13 @@
       const opts = options || {};
       fillResult(card, orientation);
       currentResult = {
-        cardId: card.id,
-        orientation,
         date: opts.date || todayStamp(),
-        isOwn: Boolean(opts.isOwn),
         fromRecord: Boolean(opts.fromRecord),
       };
       setOpen(resultView, true);
       resultView.classList.toggle("is-ready", Boolean(opts.ready));
       lockPageScroll();
-      if (currentResult.fromRecord) clearShareUrl();
-      else replaceShareUrl(card.id, orientation, currentResult.date);
-      syncResultActions(currentResult);
+      resultHome.textContent = currentResult.fromRecord ? "기록으로" : "홈으로";
     }
 
     function openModal() {
@@ -2027,7 +1977,7 @@
       document.body.appendChild(fly);
 
       saveTodayDraw(card.id, orientation);
-      showResult(card, orientation, { isOwn: true, date: todayStamp(), ready: false });
+      showResult(card, orientation, { ready: false });
       closeModal();
 
       const target = getResultCardTargetRect();
@@ -2045,7 +1995,7 @@
     function openSavedOrDraw() {
       const saved = loadTodayDraw();
       const card = saved && findCard(saved.cardId);
-      if (card) showResult(card, saved.orientation, { isOwn: true, date: saved.date, ready: true });
+      if (card) showResult(card, saved.orientation, { date: saved.date, ready: true });
       else openModal();
     }
 
@@ -2084,31 +2034,107 @@
       if (event.target.closest("[data-close-modal]")) closeModal();
     });
 
-    resultShare.addEventListener("click", async () => {
-      if (!currentResult || !currentResult.isOwn) return;
-      const url = shareUrlFor(currentResult.cardId, currentResult.orientation, currentResult.date);
+    function waitForImage(img) {
+      if (img.complete && img.naturalWidth > 0) return Promise.resolve();
+      return new Promise((resolve) => {
+        const done = () => resolve();
+        img.addEventListener("load", done, { once: true });
+        img.addEventListener("error", done, { once: true });
+      });
+    }
 
+    function isAppleTouchDevice() {
+      return /iPad|iPhone|iPod/.test(navigator.userAgent)
+        || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+    }
+
+    async function downloadPng(blob, filename) {
+      const file = new File([blob], filename, { type: "image/png" });
+      if (isAppleTouchDevice() && navigator.canShare && navigator.canShare({ files: [file] })) {
+        await navigator.share({ files: [file], title: "설이의 타로" });
+        return "shared";
+      }
+      const url = URL.createObjectURL(blob);
       try {
-        if (navigator.share) {
-          await navigator.share({ title: "설이가 알려주는 오늘의 운세는?", text: "친구의 타로 운세를 확인하고 카드를 뽑아보라냥!", url });
-          return;
-        }
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = filename;
+        a.rel = "noopener";
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+      } finally {
+        setTimeout(() => URL.revokeObjectURL(url), 2500);
+      }
+      return "downloaded";
+    }
+
+    async function captureResultImage() {
+      const panel = resultView.querySelector(".result-panel");
+      if (!panel || typeof htmlToImage === "undefined" || typeof htmlToImage.toBlob !== "function") {
+        throw new Error("capture unavailable");
+      }
+      const rect = panel.getBoundingClientRect();
+      const host = document.createElement("div");
+      host.setAttribute("aria-hidden", "true");
+      host.style.cssText = "position:fixed;left:-10000px;top:0;width:" + rect.width
+        + "px;height:" + rect.height + "px;pointer-events:none;";
+      const clone = panel.cloneNode(true);
+      clone.style.opacity = "1";
+      clone.style.transform = "none";
+      clone.style.width = rect.width + "px";
+      clone.style.height = rect.height + "px";
+      clone.style.margin = "0";
+      const actions = clone.querySelector(".result-actions");
+      if (actions) actions.remove();
+      const meaning = clone.querySelector(".result-meaning-col");
+      if (meaning) {
+        meaning.style.opacity = "1";
+        meaning.style.transform = "none";
+        meaning.style.overflow = "hidden";
+      }
+      const img = clone.querySelector(".result-card-img");
+      if (img) {
+        img.style.opacity = "1";
+        img.style.transform = img.classList.contains("is-reversed") ? "rotate(180deg)" : "none";
+      }
+      host.appendChild(clone);
+      document.body.appendChild(host);
+      try {
+        await document.fonts.ready;
+        await waitForImage(img || resultCardImg);
+        await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+        const blob = await htmlToImage.toBlob(clone, {
+          pixelRatio: 2,
+          width: rect.width,
+          height: rect.height,
+        });
+        if (!blob) throw new Error("blob");
+        return blob;
+      } finally {
+        host.remove();
+      }
+    }
+
+    resultSave.addEventListener("click", async () => {
+      if (!currentResult || !resultView.classList.contains("is-ready")) return;
+      const prev = resultSave.textContent;
+      resultSave.disabled = true;
+      resultSave.textContent = "저장 중...";
+      try {
+        const blob = await captureResultImage();
+        const filename = "설이의타로_" + (currentResult.date || todayStamp()) + ".png";
+        const mode = await downloadPng(blob, filename);
+        if (mode === "downloaded") showToast("사진을 저장했다냥!");
       } catch (err) {
         if (err && err.name === "AbortError") return;
-      }
-
-      try {
-        await navigator.clipboard.writeText(url);
-        const prev = resultShare.textContent;
-        resultShare.textContent = "복사했어요";
-        showToast("결과 링크를 복사했다냥. 오늘만 볼 수 있다냥!");
-        setTimeout(() => { resultShare.textContent = prev; }, 1600);
-      } catch (err) {
-        prompt("이 링크를 복사해서 공유해 주세요.", url);
+        showToast("사진을 저장하지 못했다냥. 다시 시도해 달라냥.");
+      } finally {
+        resultSave.disabled = false;
+        resultSave.textContent = prev;
       }
     });
 
-    resultDrawToo.addEventListener("click", closeResult);
     resultHome.addEventListener("click", closeResult);
 
     navAbout.addEventListener("click", (event) => {
@@ -2142,7 +2168,6 @@
       if (!card) return;
       closeRecord(true);
       showResult(card, item.dataset.orientation, {
-        isOwn: true,
         date: item.dataset.date,
         ready: true,
         fromRecord: true,
@@ -2168,27 +2193,6 @@
       const saved = loadTodayDraw();
       if (saved) saveHistoryEntry(saved.date, saved.cardId, saved.orientation);
       syncHomeDrawState();
-
-      const shared = readShareFromUrl();
-      if (!shared) return;
-
-      if (shared.date !== todayStamp()) {
-        clearShareUrl();
-        showToast("이 공유 링크는 오늘만 볼 수 있다냥.");
-        return;
-      }
-
-      const card = findCard(shared.cardId);
-      if (!card) {
-        clearShareUrl();
-        showToast("공유된 운세를 찾을 수 없다냥.");
-        return;
-      }
-
-      const isOwn = Boolean(
-        saved && saved.cardId === shared.cardId && saved.orientation === shared.orientation
-      );
-      showResult(card, shared.orientation, { isOwn, date: shared.date, ready: true });
     })();
   </script>
 </body>
