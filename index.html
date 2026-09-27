@@ -307,11 +307,8 @@
       padding: 0;
     }
 
-    .card:hover,
-    .card:focus-visible {
+    .card:hover {
       transform: translateY(-8px);
-      outline: 2px solid var(--gold);
-      outline-offset: 2px;
     }
 
     .card img {
@@ -1581,10 +1578,6 @@
       gap: 12px !important;
     }
 
-    .result-panel.is-capture .result-actions {
-      display: none !important;
-    }
-
     .result-panel.is-capture .fortune-row {
       grid-template-columns: 3.3em max-content minmax(0, 1fr) !important;
     }
@@ -1619,7 +1612,7 @@
         <span class="label">소개</span>
       </a>
       <a href="#shell" id="nav-shell">
-        <img class="nav-icon" src="assets/icon/icon_shell.png?v=2" alt="" />
+        <img class="nav-icon" src="assets/icon/icon_shell.png" alt="" />
         <span class="label">소라고동</span>
       </a>
     </nav>
@@ -1642,22 +1635,22 @@
 
         <img class="wizard-cat" src="assets/wizard_cat.png" alt="마법사 고양이" />
 
-        <div class="cards" aria-label="타로 카드">
-          <button class="card" type="button" aria-label="카드 1">
+        <div class="cards" aria-hidden="true">
+          <div class="card">
             <img src="assets/card_back.png" alt="" />
-          </button>
-          <button class="card" type="button" aria-label="카드 2">
+          </div>
+          <div class="card">
             <img src="assets/card_back.png" alt="" />
-          </button>
-          <button class="card" type="button" aria-label="카드 3">
+          </div>
+          <div class="card">
             <img src="assets/card_back.png" alt="" />
-          </button>
-          <button class="card" type="button" aria-label="카드 4">
+          </div>
+          <div class="card">
             <img src="assets/card_back.png" alt="" />
-          </button>
-          <button class="card" type="button" aria-label="카드 5">
+          </div>
+          <div class="card">
             <img src="assets/card_back.png" alt="" />
-          </button>
+          </div>
         </div>
 
         <button class="draw-btn" id="draw-btn" type="button">
@@ -1858,7 +1851,7 @@
         <div class="about-inner shell-inner">
           <h1 id="shell-title">소라고동</h1>
           <p class="about-lead">고민을 속삭이면, 설이가 대답해 준다냥</p>
-          <img class="shell-mascot" id="shell-mascot" src="assets/icon/icon_shell.png?v=2" alt="" />
+          <img class="shell-mascot" id="shell-mascot" src="assets/icon/icon_shell.png" alt="" />
           <p class="shell-intro">마음속 질문을 적고 소라고동을 두드려 보세요.</p>
           <form class="shell-form" id="shell-form" autocomplete="off">
             <label class="visually-hidden" for="shell-question">질문</label>
@@ -1870,11 +1863,11 @@
               placeholder="예: 오늘 새로운 일을 시작해도 될까?"
             ></textarea>
             <button class="shell-ask" id="shell-ask" type="submit">
-              <img src="assets/icon/icon_shell.png?v=2" alt="" />
+              <img src="assets/icon/icon_shell.png" alt="" />
               물어보기
             </button>
           </form>
-          <div class="shell-answer-box" id="shell-answer-box">
+          <div class="shell-answer-box">
             <p class="shell-echo" id="shell-echo" hidden></p>
             <p class="shell-answer" id="shell-answer">소라고동을 두드리면 대답이 들린다냥.</p>
           </div>
@@ -2344,15 +2337,7 @@
       if (imgRect.width > 8 && imgRect.height > 8) {
         return { left: imgRect.left, top: imgRect.top, width: imgRect.width, height: imgRect.height };
       }
-      const colRect = resultView.querySelector(".result-card-col").getBoundingClientRect();
-      const width = Math.min(colRect.width * 0.86, colRect.height * 0.58 * 2 / 3);
-      const height = width * 1.5;
-      return {
-        left: colRect.left + (colRect.width - width) / 2,
-        top: colRect.top + Math.max(0, (colRect.height - height) / 2 - 12),
-        width,
-        height,
-      };
+      return resultView.querySelector(".result-card-col").getBoundingClientRect();
     }
 
     function applyRect(el, rect) {
@@ -2475,7 +2460,6 @@
         + "px;pointer-events:none;";
       const clone = panel.cloneNode(true);
       clone.classList.add("is-capture");
-      clone.style.width = captureWidth + "px";
       const actions = clone.querySelector(".result-actions");
       if (actions) actions.remove();
       host.appendChild(clone);
@@ -2493,7 +2477,6 @@
           pixelRatio: 2,
           width: captureWidth,
           height,
-          cacheBust: true,
         });
         if (!blob) throw new Error("blob");
         return blob;
