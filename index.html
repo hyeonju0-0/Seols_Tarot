@@ -80,6 +80,18 @@
       image-rendering: pixelated;
     }
 
+    .visually-hidden {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
+    }
+
     /* ===== Header ===== */
     .site-header {
       height: var(--header-h);
@@ -137,8 +149,7 @@
       flex-shrink: 0;
     }
 
-    .nav a,
-    .nav-paw {
+    .nav a {
       display: inline-flex;
       align-items: center;
       gap: 10px;
@@ -950,6 +961,122 @@
       object-fit: cover;
     }
 
+    .shell-inner {
+      text-align: center;
+    }
+
+    .shell-mascot {
+      width: 96px;
+      height: 96px;
+      margin: 4px auto 10px;
+      border-radius: 18px;
+      object-fit: cover;
+      image-rendering: pixelated;
+    }
+
+    .shell-mascot.is-listening {
+      animation: shell-shake 0.72s ease-in-out;
+    }
+
+    @keyframes shell-shake {
+      0%, 100% { transform: rotate(0deg) scale(1); }
+      18% { transform: rotate(-14deg) scale(1.04); }
+      36% { transform: rotate(12deg) scale(1.04); }
+      54% { transform: rotate(-8deg) scale(1.02); }
+      72% { transform: rotate(8deg) scale(1.02); }
+    }
+
+    .shell-form {
+      display: flex;
+      flex-direction: column;
+      align-items: stretch;
+      gap: 12px;
+      margin: 8px 0 18px;
+    }
+
+    .shell-question {
+      width: 100%;
+      min-height: 5.2em;
+      resize: none;
+      padding: 12px 14px;
+      border-radius: 12px;
+      border: 2px solid rgba(90, 60, 30, 0.35);
+      background: rgba(255, 248, 230, 0.72);
+      color: #3b2a16;
+      font: inherit;
+      font-size: max(16px, clamp(13px, 2.35cqh, 16px));
+      line-height: 1.55;
+    }
+
+    .shell-question::placeholder {
+      color: #8a7458;
+    }
+
+    .shell-question:focus {
+      outline: none;
+      border-color: #8a6a30;
+      background: rgba(255, 250, 236, 0.92);
+    }
+
+    .shell-ask {
+      align-self: center;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      min-width: 0;
+      padding: 8px 18px;
+      border-radius: 999px;
+      border: 2px solid #8a6a30;
+      background: linear-gradient(180deg, #f0d9a0 0%, #d4b06a 100%);
+      color: #3b2a16;
+      font-size: clamp(13px, 2.2cqh, 16px);
+    }
+
+    .shell-ask img {
+      width: 22px;
+      height: 22px;
+      border-radius: 4px;
+      object-fit: cover;
+    }
+
+    .shell-ask:hover {
+      filter: brightness(1.05);
+    }
+
+    .shell-ask:disabled {
+      cursor: wait;
+      opacity: 0.75;
+      filter: none;
+    }
+
+    .shell-answer-box {
+      padding: 16px 18px;
+      border-radius: 14px;
+      background: rgba(255, 245, 220, 0.5);
+      border: 2px solid rgba(90, 60, 30, 0.28);
+      min-height: 4.8em;
+    }
+
+    .shell-echo {
+      font-size: clamp(12px, 2.1cqh, 14px);
+      color: #5d4630;
+      margin-bottom: 8px;
+    }
+
+    .shell-answer {
+      font-size: clamp(16px, 3.2cqh, 22px);
+      line-height: 1.5;
+      color: #2e2012;
+      word-break: keep-all;
+      margin-bottom: 0;
+    }
+
+    .shell-hint {
+      margin-top: 12px;
+      font-size: clamp(12px, 2cqh, 14px);
+      color: #5d4630;
+    }
+
     .about-cards {
       display: grid;
       grid-template-columns: repeat(5, minmax(0, 1fr));
@@ -1130,6 +1257,10 @@
         display: none;
       }
 
+      .nav {
+        gap: 16px;
+      }
+
       .stage {
         min-height: calc(100dvh - var(--header-h) - 16px);
         height: auto;
@@ -1224,6 +1355,42 @@
 
       .draw-modal-close {
         margin-top: clamp(8px, 1.8cqh, 14px);
+      }
+
+      .shell-mascot {
+        width: 56px;
+        height: 56px;
+        margin: 0 auto 4px;
+        border-radius: 12px;
+      }
+
+      .shell-intro,
+      .shell-hint,
+      .shell-echo {
+        display: none;
+      }
+
+      .shell-inner .about-lead {
+        margin-bottom: 8px;
+      }
+
+      .shell-form {
+        gap: 8px;
+        margin: 4px 0 8px;
+      }
+
+      .shell-question {
+        min-height: 3.2em;
+        padding: 8px 10px;
+      }
+
+      .shell-answer-box {
+        padding: 10px 12px;
+        min-height: 0;
+      }
+
+      .shell-answer {
+        font-size: clamp(15px, 2.8cqh, 18px);
       }
 
       .about-inner h1 {
@@ -1383,9 +1550,10 @@
         <img class="nav-icon" src="assets/icon/icon_sparkle.png" alt="" />
         <span class="label">소개</span>
       </a>
-      <span class="nav-paw" aria-hidden="true">
-        <img class="nav-icon" src="assets/icon/icon_paw.png" alt="" />
-      </span>
+      <a href="#shell" id="nav-shell">
+        <img class="nav-icon" src="assets/icon/icon_shell.png?v=2" alt="" />
+        <span class="label">소라고동</span>
+      </a>
     </nav>
   </header>
 
@@ -1615,6 +1783,40 @@
     </div>
   </div>
 
+  <div class="about-modal" id="shell-modal" aria-hidden="true">
+    <div class="about-modal-backdrop" data-close-shell></div>
+    <div class="about-modal-panel" role="dialog" aria-modal="true" aria-labelledby="shell-title" tabindex="-1">
+      <div class="about-scroll">
+        <div class="about-inner shell-inner">
+          <h1 id="shell-title">소라고동</h1>
+          <p class="about-lead">고민을 속삭이면, 설이가 대답해 준다냥</p>
+          <img class="shell-mascot" id="shell-mascot" src="assets/icon/icon_shell.png?v=2" alt="" />
+          <p class="shell-intro">마음속 질문을 적고 소라고동을 두드려 보세요.</p>
+          <form class="shell-form" id="shell-form" autocomplete="off">
+            <label class="visually-hidden" for="shell-question">질문</label>
+            <textarea
+              id="shell-question"
+              class="shell-question"
+              maxlength="80"
+              rows="3"
+              placeholder="예: 오늘 새로운 일을 시작해도 될까?"
+            ></textarea>
+            <button class="shell-ask" id="shell-ask" type="submit">
+              <img src="assets/icon/icon_shell.png?v=2" alt="" />
+              물어보기
+            </button>
+          </form>
+          <div class="shell-answer-box" id="shell-answer-box">
+            <p class="shell-echo" id="shell-echo" hidden></p>
+            <p class="shell-answer" id="shell-answer">소라고동을 두드리면 대답이 들린다냥.</p>
+          </div>
+          <p class="shell-hint">같은 질문은 오늘 하루 같은 답을 들려준다냥.</p>
+        </div>
+      </div>
+      <button class="draw-modal-close" type="button" data-close-shell>닫기</button>
+    </div>
+  </div>
+
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
   <script>
@@ -1738,13 +1940,51 @@
     const recordModal = $("record-modal");
     const recordPanel = recordModal.querySelector(".record-modal-panel");
     const recordList = $("record-list");
+    const shellModal = $("shell-modal");
+    const shellPanel = shellModal.querySelector(".about-modal-panel");
+    const shellForm = $("shell-form");
+    const shellQuestion = $("shell-question");
+    const shellAsk = $("shell-ask");
+    const shellMascot = $("shell-mascot");
+    const shellEcho = $("shell-echo");
+    const shellAnswer = $("shell-answer");
     const navHome = $("nav-home");
     const navRecord = $("nav-record");
     const navAbout = $("nav-about");
+    const navShell = $("nav-shell");
 
     let hasPicked = false;
     let currentResult = null;
     let toastTimer = 0;
+    let shellTimer = 0;
+    let shellListening = false;
+
+    const SHELL_ANSWERS = [
+      "그래.",
+      "안 돼.",
+      "나중에.",
+      "해도 된다냥.",
+      "지금은 아니다냥.",
+      "조금 더 기다려라냥.",
+      "마음이 가는 대로 해라냥.",
+      "오늘은 쉬어라냥.",
+      "다시 한번 생각해 봐라냥.",
+      "좋은 쪽으로 흐르고 있다냥.",
+      "그건 아직 비밀이다냥.",
+      "네 마음이 이미 알고 있다냥.",
+      "걱정하지 마라냥.",
+      "다른 길을 둘러봐라냥.",
+      "지금이 딱 좋은 때다냥.",
+      "아직은 때가 아니다냥.",
+      "믿어 봐라냥.",
+      "한 발만 물러나라냥.",
+      "천천히 가도 된다냥.",
+      "그 선택은 너를 돕는다냥.",
+      "오늘은 조용히 있어라냥.",
+      "내일 다시 물어봐라냥.",
+      "아무도 모른다냥.",
+      "하고 싶은 대로 해라냥.",
+    ];
 
     function todayStamp() {
       const now = new Date();
@@ -1844,7 +2084,8 @@
     }
 
     function isOverlayOpen() {
-      return isOpen(resultView) || isOpen(modal) || isOpen(aboutModal) || isOpen(recordModal);
+      return isOpen(resultView) || isOpen(modal) || isOpen(aboutModal)
+        || isOpen(recordModal) || isOpen(shellModal);
     }
 
     function setOpen(el, open) {
@@ -1856,6 +2097,7 @@
       navHome.classList.toggle("is-active", id === "home");
       navRecord.classList.toggle("is-active", id === "record");
       navAbout.classList.toggle("is-active", id === "about");
+      navShell.classList.toggle("is-active", id === "shell");
     }
 
     function lockPageScroll() {
@@ -1879,6 +2121,7 @@
 
     function openAbout() {
       closeRecord(true);
+      closeShell(true);
       setOpen(aboutModal, true);
       setNavActive("about");
       lockPageScroll();
@@ -1888,12 +2131,13 @@
     function closeAbout() {
       if (!isOpen(aboutModal)) return;
       setOpen(aboutModal, false);
-      if (!isOpen(recordModal)) setNavActive("home");
+      if (!isOpen(recordModal) && !isOpen(shellModal)) setNavActive("home");
       unlockPageScroll();
     }
 
     function openRecord() {
       closeAbout();
+      closeShell(true);
       renderRecordList();
       setOpen(recordModal, true);
       setNavActive("record");
@@ -1904,7 +2148,48 @@
     function closeRecord(keepNav) {
       if (!isOpen(recordModal)) return;
       setOpen(recordModal, false);
-      if (!keepNav && !isOpen(aboutModal)) setNavActive("home");
+      if (!keepNav && !isOpen(aboutModal) && !isOpen(shellModal)) setNavActive("home");
+      unlockPageScroll();
+    }
+
+    function resetShellAsk() {
+      shellListening = false;
+      clearTimeout(shellTimer);
+      shellAsk.disabled = false;
+      shellMascot.classList.remove("is-listening");
+    }
+
+    function hashText(text) {
+      let h = 2166136261;
+      for (let i = 0; i < text.length; i += 1) {
+        h ^= text.charCodeAt(i);
+        h = Math.imul(h, 16777619);
+      }
+      return h >>> 0;
+    }
+
+    function pickShellAnswer(question) {
+      const seed = hashText(todayStamp() + "|" + question);
+      return SHELL_ANSWERS[seed % SHELL_ANSWERS.length];
+    }
+
+    function openShell() {
+      closeAbout();
+      closeRecord(true);
+      setOpen(shellModal, true);
+      setNavActive("shell");
+      lockPageScroll();
+      shellPanel.focus();
+      if (window.matchMedia("(min-width: 561px)").matches) {
+        setTimeout(() => shellQuestion.focus(), 40);
+      }
+    }
+
+    function closeShell(keepNav) {
+      if (!isOpen(shellModal)) return;
+      resetShellAsk();
+      setOpen(shellModal, false);
+      if (!keepNav && !isOpen(aboutModal) && !isOpen(recordModal)) setNavActive("home");
       unlockPageScroll();
     }
 
@@ -2187,14 +2472,49 @@
       isOpen(recordModal) ? closeRecord() : openRecord();
     });
 
+    navShell.addEventListener("click", (event) => {
+      event.preventDefault();
+      isOpen(shellModal) ? closeShell() : openShell();
+    });
+
     navHome.addEventListener("click", (event) => {
       event.preventDefault();
       closeAbout();
       closeRecord();
+      closeShell();
     });
 
     aboutModal.addEventListener("click", (event) => {
       if (event.target.closest("[data-close-about]")) closeAbout();
+    });
+
+    shellModal.addEventListener("click", (event) => {
+      if (event.target.closest("[data-close-shell]")) closeShell();
+    });
+
+    shellForm.addEventListener("submit", (event) => {
+      event.preventDefault();
+      if (shellListening) return;
+      const question = shellQuestion.value.trim();
+      if (!question) {
+        showToast("질문을 속삭여 달라냥.");
+        shellQuestion.focus();
+        return;
+      }
+      shellListening = true;
+      shellAsk.disabled = true;
+      shellEcho.hidden = true;
+      shellAnswer.textContent = "소라고동이 듣고 있다냥...";
+      shellMascot.classList.remove("is-listening");
+      void shellMascot.offsetWidth;
+      shellMascot.classList.add("is-listening");
+      clearTimeout(shellTimer);
+      shellTimer = setTimeout(() => {
+        shellEcho.textContent = "「" + question + "」";
+        shellEcho.hidden = false;
+        shellAnswer.textContent = pickShellAnswer(question);
+        resetShellAsk();
+      }, 900);
     });
 
     recordModal.addEventListener("click", (event) => {
@@ -2218,6 +2538,7 @@
       if (event.key !== "Escape") return;
       if (isOpen(aboutModal)) closeAbout();
       else if (isOpen(recordModal)) closeRecord();
+      else if (isOpen(shellModal)) closeShell();
       else if (isOpen(resultView)) closeResult();
       else if (isOpen(modal)) closeModal();
     });
