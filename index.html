@@ -1524,6 +1524,74 @@
         font-size: 17px;
       }
     }
+
+    .result-panel.is-capture {
+      width: 1100px !important;
+      max-width: none !important;
+      height: auto !important;
+      max-height: none !important;
+      aspect-ratio: auto !important;
+      overflow: visible !important;
+      opacity: 1 !important;
+      transform: none !important;
+      margin: 0 !important;
+      background-image: url("assets/card_box.png") !important;
+      background-size: 100% 100% !important;
+      display: grid !important;
+    }
+
+    .result-panel.is-capture .result-panel-inner {
+      display: grid !important;
+      grid-template-columns: minmax(0, 36%) minmax(0, 1fr) !important;
+      grid-template-rows: none !important;
+      gap: 24px !important;
+      align-items: start !important;
+      height: auto !important;
+      min-height: 0 !important;
+      padding: 11% 18% 11% 11% !important;
+    }
+
+    .result-panel.is-capture .result-card-col {
+      height: auto !important;
+      justify-content: center !important;
+    }
+
+    .result-panel.is-capture .result-card-img {
+      width: 220px !important;
+      max-height: 340px !important;
+      height: auto !important;
+      opacity: 1 !important;
+    }
+
+    .result-panel.is-capture .result-card-img.is-reversed {
+      transform: rotate(180deg) !important;
+    }
+
+    .result-panel.is-capture .result-card-img:not(.is-reversed) {
+      transform: none !important;
+    }
+
+    .result-panel.is-capture .result-meaning-col {
+      overflow: visible !important;
+      max-height: none !important;
+      height: auto !important;
+      opacity: 1 !important;
+      transform: none !important;
+      justify-content: flex-start !important;
+      gap: 12px !important;
+    }
+
+    .result-panel.is-capture .result-actions {
+      display: none !important;
+    }
+
+    .result-panel.is-capture .fortune-row {
+      grid-template-columns: 3.3em max-content minmax(0, 1fr) !important;
+    }
+
+    .result-panel.is-capture .fortune-row .fortune-msg {
+      grid-column: auto !important;
+    }
   </style>
   <script src="tarot-meanings.js"></script>
   <script src="fortune-messages.js"></script>
@@ -2399,40 +2467,33 @@
       if (!panel || typeof htmlToImage === "undefined" || typeof htmlToImage.toBlob !== "function") {
         throw new Error("capture unavailable");
       }
-      const rect = panel.getBoundingClientRect();
+      const captureWidth = 1100;
+      const minHeight = Math.round(captureWidth * 1024 / 1536);
       const host = document.createElement("div");
       host.setAttribute("aria-hidden", "true");
-      host.style.cssText = "position:fixed;left:-10000px;top:0;width:" + rect.width
-        + "px;height:" + rect.height + "px;pointer-events:none;";
+      host.style.cssText = "position:fixed;left:-10000px;top:0;width:" + captureWidth
+        + "px;pointer-events:none;";
       const clone = panel.cloneNode(true);
-      clone.style.opacity = "1";
-      clone.style.transform = "none";
-      clone.style.width = rect.width + "px";
-      clone.style.height = rect.height + "px";
-      clone.style.margin = "0";
+      clone.classList.add("is-capture");
+      clone.style.width = captureWidth + "px";
       const actions = clone.querySelector(".result-actions");
       if (actions) actions.remove();
-      const meaning = clone.querySelector(".result-meaning-col");
-      if (meaning) {
-        meaning.style.opacity = "1";
-        meaning.style.transform = "none";
-        meaning.style.overflow = "hidden";
-      }
-      const img = clone.querySelector(".result-card-img");
-      if (img) {
-        img.style.opacity = "1";
-        img.style.transform = img.classList.contains("is-reversed") ? "rotate(180deg)" : "none";
-      }
       host.appendChild(clone);
       document.body.appendChild(host);
       try {
+        const img = clone.querySelector(".result-card-img");
         await document.fonts.ready;
         await waitForImage(img || resultCardImg);
         await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+        const height = Math.max(minHeight, Math.ceil(clone.scrollHeight));
+        clone.style.height = height + "px";
+        host.style.height = height + "px";
+        await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
         const blob = await htmlToImage.toBlob(clone, {
           pixelRatio: 2,
-          width: rect.width,
-          height: rect.height,
+          width: captureWidth,
+          height,
+          cacheBust: true,
         });
         if (!blob) throw new Error("blob");
         return blob;
